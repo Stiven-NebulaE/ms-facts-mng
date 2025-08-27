@@ -1,0 +1,16 @@
+[
+  {
+    "name": "facts-mng-shark-attack-management",
+    "src": "frontend/emi/facts-mng-shark-attack-management",
+    "assets": "frontend/emi/facts-mng-shark-attack-management/assets/facts-mng-shark-attack-management",
+    "prebuildCommands": [],
+    "environmentVars": {
+      "_env": {
+      },
+      "_env_local": {
+      },
+      "_env_production": {
+      }
+    }
+  }
+]
