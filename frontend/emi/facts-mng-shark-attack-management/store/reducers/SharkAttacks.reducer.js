@@ -89,7 +89,7 @@ const sharkAttacksReducer = function (state = initialState, action) {
             {
                 return {
                     ...state,
-                    filters: { ...state.filters, type: action.type }
+                    filters: { ...state.filters, type: action.filterType }
                 };
             }
         case Actions.SET_SHARK_ATTACKS_FILTERS_SPECIES:

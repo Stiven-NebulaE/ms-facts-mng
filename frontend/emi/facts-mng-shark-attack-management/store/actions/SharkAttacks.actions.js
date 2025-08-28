@@ -159,12 +159,12 @@ export function setSharkAttacksFilterCountry(country) {
 
 /**
  * Set the type filter
- * @param {string} type 
+ * @param {string} filterType 
  */
-export function setSharkAttacksFilterType(type) {    
+export function setSharkAttacksFilterType(filterType) {    
     return {
         type: SET_SHARK_ATTACKS_FILTERS_TYPE,
-        type
+        filterType
     }
 }
 
