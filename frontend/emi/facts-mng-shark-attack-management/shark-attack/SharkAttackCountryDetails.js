@@ -7,6 +7,8 @@ import { FuseLoading } from '@fuse';
 /* Tools */
 import { MDText } from 'i18n-react';
 import i18n from "../i18n";
+import { timer } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -57,7 +59,7 @@ function SharkAttackCountryDetails({ open, onClose, country, loggedUser }) {
      * Handle the query related cases button action
      */
     async function handleQueryRelatedCases() {
-        if (!country) return;
+        if (!country || loadingRelatedCases) return;
         
         // If we already have data for this country, just show it
         if (relatedCases.length > 0 && country === lastQueriedCountry.current) {
@@ -66,6 +68,9 @@ function SharkAttackCountryDetails({ open, onClose, country, loggedUser }) {
         
         setLoadingRelatedCases(true);
         try {
+            // Delay 1 sec
+            await timer(1000).pipe(take(1)).toPromise();
+            
             const response = await fetch(`https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/global-shark-attack/records?where=country%3D'${encodeURIComponent(country.toUpperCase())}'&limit=5`);
             const data = await response.json();
             
