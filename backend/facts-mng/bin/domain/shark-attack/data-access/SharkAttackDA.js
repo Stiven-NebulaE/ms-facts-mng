@@ -1,13 +1,14 @@
 "use strict";
 
 let mongoDB = undefined;
-const { map, mapTo } = require("rxjs/operators");
-const { of, Observable, defer } = require("rxjs");
+const { map, mapTo, catchError, toArray } = require("rxjs/operators");
+const { of, Observable, defer, from } = require("rxjs");
 const { mergeMap } = require("rxjs/operators");
 
 const { CustomError } = require("@nebulae/backend-node-tools").error;
 
 const CollectionName = 'SharkAttack';
+const MATERIALIZED_VIEW_TOPIC = "emi-gateway-materialized-view-updates";
 
 class SharkAttackDA {
   static start$(mongoDbInstance) {
@@ -62,6 +63,8 @@ class SharkAttackDA {
     if (filter.species) {
       query["species"] = { $regex: filter.species, $options: "i" };
     }
+    
+    console.log('DA: Final query:', JSON.stringify(query));
     return query;
   }
 
@@ -230,15 +233,23 @@ class SharkAttackDA {
   /**
    * Import shark attacks from external API
    * @param {string} createdBy 
+   * @param {string} organizationId 
    */
-  static importSharkAttacksFromAPI$(createdBy) {
+  static importSharkAttacksFromAPI$(createdBy, organizationId) {
+    console.log('Method importSharkAttacksFromAPI called with organizationId:', organizationId);
     const collection = mongoDB.db.collection(CollectionName);
     const axios = require('axios');
+    const { brokerFactory } = require("@nebulae/backend-node-tools").broker;
+    const broker = brokerFactory();
+
+    console.log('Starting import from API...');
     
     return defer(() => 
       axios.get('https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/global-shark-attack/records?limit=100')
     ).pipe(
       mergeMap(response => {
+        console.log('API Response status:', response.status);
+        console.log('API Response data length:', response.data.results ? response.data.results.length : 0);
         const records = response.data.results;
         const importPromises = records.map(record => {
           const sharkAttackData = {
@@ -264,7 +275,7 @@ class SharkAttackDA {
             case_number: record.case_number,
             case_number0: record.case_number0,
             active: true,
-            organizationId: 'default',
+            organizationId: organizationId,
             metadata: { 
               createdBy, 
               createdAt: Date.now(), 
@@ -277,17 +288,50 @@ class SharkAttackDA {
             { _id: record.original_order },
             { $set: sharkAttackData },
             { upsert: true }
-          );
+          ).then(result => {
+            // Generate Event Sourcing event
+            const event = {
+              etv: 1,
+              aid: record.original_order,
+              av: 1,
+              data: sharkAttackData,
+              user: createdBy,
+              timestamp: Date.now()
+            };
+            
+            return broker.publish$(MATERIALIZED_VIEW_TOPIC, {
+              aggregateType: 'SharkAttack',
+              eventType: 'Reported',
+              ...event
+            }).pipe(
+              map(() => result)
+            );
+          });
         });
         
+        console.log('Processing', importPromises.length, 'records...');
         return Promise.all(importPromises);
       }),
+      mergeMap(results => 
+        from(results).pipe(
+          mergeMap(result => result),
+          toArray()
+        )
+      ),
       map(results => {
         const importedCount = results.filter(r => r.upsertedCount > 0 || r.modifiedCount > 0).length;
+        console.log('Import completed. Imported count:', importedCount);
         return { 
           code: 200, 
           message: `Successfully imported ${importedCount} shark attacks` 
         };
+      }),
+      catchError(error => {
+        console.error('Import error:', error.message);
+        return of({ 
+          code: 500, 
+          message: `Error importing shark attacks: ${error.message}` 
+        });
       })
     );
   }

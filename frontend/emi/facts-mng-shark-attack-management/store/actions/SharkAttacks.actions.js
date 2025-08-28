@@ -181,36 +181,47 @@ export function setSharkAttacksFilterSpecies(species) {
 
 /**
  * Import shark attacks from external API
+ * @param {string} organizationId - The organization ID to import shark attacks for
  */
-export function importSharkAttacks() {
+export function importSharkAttacks(organizationId) {
+    console.log('FRONTEND: Starting import shark attacks action');
     return (dispatch) => {
+        console.log('FRONTEND: Dispatching import action');
         dispatch({ type: IMPORT_SHARK_ATTACKS });
         
+        console.log('FRONTEND: Sending GraphQL mutation');
         return graphqlService.client.mutate({
             mutation: gql`
-                mutation ImportSharkAttacks {
-                    importSharkAttacks {
+                mutation FactsMngImportSharkAttacks($organizationId: String!) {
+                    FactsMngImportSharkAttacks(organizationId: $organizationId) {
                         code
                         message
                     }
                 }
-            `
+            `,
+            variables: {
+                organizationId: organizationId
+            }
         }).then(result => {
+            console.log('FRONTEND: GraphQL response received:', result);
             dispatch({ 
                 type: IMPORT_SHARK_ATTACKS_SUCCESS, 
-                payload: result.data.importSharkAttacks 
+                payload: result.data.FactsMngImportSharkAttacks 
             });
             
             // Refresh the list after successful import
             dispatch(getSharkAttacks({ 
-                filters: { organizationId: '' }, 
+                filters: { organizationId: organizationId }, 
                 order: { id: null, direction: 'asc' }, 
                 page: 0, 
                 rowsPerPage: 10 
             }));
+
+            console.log('FRONTEND: Import completed successfully');
             
             return result;
         }).catch(error => {
+            console.error('❌ FRONTEND: Import error:', error);
             dispatch({ 
                 type: IMPORT_SHARK_ATTACKS_ERROR, 
                 payload: error.message 

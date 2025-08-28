@@ -16,34 +16,27 @@ function SharkAttacksHeader(props) {
     const user = useSelector(({ auth }) => auth.user);
     const mainTheme = useSelector(({ fuse }) => fuse.settings.mainTheme);
     const searchTextFilter = useSelector(({ SharkAttackManagement }) => SharkAttackManagement.sharkAttacks.filters.name);
-    const importLoading = useSelector(({ SharkAttackManagement }) => SharkAttackManagement.sharkAttacks.import.loading);
-    const importSuccess = useSelector(({ SharkAttackManagement }) => SharkAttackManagement.sharkAttacks.import.success);
-    const importError = useSelector(({ SharkAttackManagement }) => SharkAttackManagement.sharkAttacks.import.error);
     const [searchText, setSearchText] = useState(searchTextFilter)
     const [keywordCallBack, keyword] = useEventCallback(
         (event$) => event$.pipe(debounceTime(500))
     )
 
     const T = new MDText(i18n.get(user.locale));
+    const isImporting = useSelector(({ SharkAttackManagement }) => SharkAttackManagement.sharkAttacks.isImporting);
 
     function handleSearchChange(evt) {
         keywordCallBack(evt.target.value);
         setSearchText(evt.target.value);
     }
+    
+    function handleImport() {
+        dispatch(Actions.importSharkAttacks(user.data.organizationId));
+    }
+    
     useEffect(() => {
         if (keyword !== undefined && keyword !== null)
             dispatch(Actions.setSharkAttacksFilterName(keyword))
     }, [keyword]);
-
-    // Clear import messages after 5 seconds
-    useEffect(() => {
-        if (importSuccess || importError) {
-            const timer = setTimeout(() => {
-                dispatch({ type: 'CLEAR_IMPORT_MESSAGES' });
-            }, 5000);
-            return () => clearTimeout(timer);
-        }
-    }, [importSuccess, importError, dispatch]);
 
     return (
         <div className="flex flex-1 w-full items-center justify-between">
@@ -59,7 +52,7 @@ function SharkAttacksHeader(props) {
 
             <div className="flex items-center">
                 <FuseAnimate animation="transition.expandIn" delay={300}>
-                    <Icon className="text-32 mr-0 sm:mr-12">business</Icon>
+                    <Icon className="text-32 mr-0 sm:mr-12">pool</Icon>
                 </FuseAnimate>
                 <FuseAnimate animation="transition.slideLeftIn" delay={300}>
                     <Typography className="hidden sm:flex" variant="h6">{T.translate("shark_attacks.shark_attacks")} </Typography>
@@ -90,49 +83,26 @@ function SharkAttacksHeader(props) {
                 </ThemeProvider>
 
             </div>
-            <div className="flex items-center space-x-8">
-                <FuseAnimate animation="transition.slideRightIn" delay={300}>
+            <FuseAnimate animation="transition.slideRightIn" delay={300}>
+                <div className="flex items-center">
+                    <div className="mr-1 md:mr-8">
+                        {/* No existe gap en tailwind 1.1.2 :c */}
                     <Button 
-                        onClick={() => dispatch(Actions.importSharkAttacks())}
-                        className="whitespace-no-wrap" 
-                        variant="outlined"
+                        className="whitespace-no-wrap text-white border-white" 
+                        variant="outlined" 
                         color="primary"
-                        disabled={importLoading}
+                        onClick={handleImport}
+                        disabled={isImporting}
                     >
-                        {importLoading ? (
-                            <>
-                                <Icon className="mr-8 animate-spin">refresh</Icon>
-                                {T.translate("shark_attacks.importing")}
-                            </>
-                        ) : (
-                            T.translate("shark_attacks.import")
-                        )}
+                        {isImporting ? T.translate("shark_attacks.importing") : T.translate("shark_attacks.import")}
                     </Button>
-                </FuseAnimate>
-                
-                {/* Import Status Messages */}
-                {importSuccess && (
-                    <FuseAnimate animation="transition.slideRightIn" delay={300}>
-                        <div className="ml-8 p-8 bg-green-100 text-green-800 rounded-4 text-sm">
-                            {T.translate("shark_attacks.import_success")}
-                        </div>
-                    </FuseAnimate>
-                )}
-                
-                {importError && (
-                    <FuseAnimate animation="transition.slideRightIn" delay={300}>
-                        <div className="ml-8 p-8 bg-red-100 text-red-800 rounded-4 text-sm">
-                            {T.translate("shark_attacks.import_error")}
-                        </div>
-                    </FuseAnimate>
-                )}
-                <FuseAnimate animation="transition.slideRightIn" delay={300}>
+                    </div>
                     <Button component={Link} to="/shark-attack-mng/shark-attacks/new" className="whitespace-no-wrap" variant="contained">
                         <span className="hidden sm:flex">{T.translate("shark_attacks.add_new_shark_attack")}</span>
                         <span className="flex sm:hidden">{T.translate("shark_attacks.add_new_shark_attack_short")}</span>
                     </Button>
-                </FuseAnimate>
-            </div>
+                </div>
+            </FuseAnimate>
         </div>
     );
 }

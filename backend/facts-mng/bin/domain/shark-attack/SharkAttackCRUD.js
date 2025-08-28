@@ -45,7 +45,7 @@ class SharkAttackCRUD {
         "emigateway.graphql.mutation.FactsMngCreateSharkAttack": { fn: instance.createSharkAttack$, instance, jwtValidation: { roles: WRITE_ROLES, attributes: REQUIRED_ATTRIBUTES } },
         "emigateway.graphql.mutation.FactsMngUpdateSharkAttack": { fn: instance.updateSharkAttack$, jwtValidation: { roles: WRITE_ROLES, attributes: REQUIRED_ATTRIBUTES } },
         "emigateway.graphql.mutation.FactsMngDeleteSharkAttacks": { fn: instance.deleteSharkAttacks$, jwtValidation: { roles: WRITE_ROLES, attributes: REQUIRED_ATTRIBUTES } },
-        "emigateway.graphql.mutation.importSharkAttacks": { fn: instance.importSharkAttacks$, jwtValidation: { roles: WRITE_ROLES, attributes: REQUIRED_ATTRIBUTES } },
+        "emigateway.graphql.mutation.FactsMngImportSharkAttacks": { fn: instance.importSharkAttacks$, instance, jwtValidation: { roles: WRITE_ROLES, attributes: REQUIRED_ATTRIBUTES } },
       }
     }
   };
@@ -146,16 +146,6 @@ class SharkAttackCRUD {
     );
   }
 
-  /**
-   * Import shark attacks from external API
-   */
-  importSharkAttacks$({ root, args, jwt }, authToken) {
-    return SharkAttackDA.importSharkAttacksFromAPI$(authToken.preferred_username).pipe(
-      mergeMap(result => CqrsResponseHelper.buildSuccessResponse$(result)),
-      catchError(err => iif(() => err.name === 'MongoTimeoutError', throwError(err), CqrsResponseHelper.handleError$(err)))
-    );
-  }
-
 
   /**
    * Generate an Modified event 
@@ -178,6 +168,28 @@ class SharkAttackCRUD {
       },
       user: authToken.preferred_username
     })
+  }
+
+  /**
+   * Import shark attacks from external API
+   * @param {*} args 
+   * @param {*} authToken 
+   */
+  importSharkAttacks$({ args }, authToken) {
+    const createdBy = authToken.userId || 'system';
+    const { organizationId } = args;
+    console.log('CRUD: Starting import process for user:', createdBy, 'organizationId:', organizationId);
+    
+    return SharkAttackDA.importSharkAttacksFromAPI$(createdBy, organizationId).pipe(
+      mergeMap(result => {
+        console.log('CRUD: Import result:', result);
+        return CqrsResponseHelper.buildSuccessResponse$(result);
+      }),
+      catchError(error => {
+        console.error('CRUD: Import error:', error.message);
+        return CqrsResponseHelper.buildErrorResponse$(error.message, error.code);
+      })
+    );
   }
 }
 

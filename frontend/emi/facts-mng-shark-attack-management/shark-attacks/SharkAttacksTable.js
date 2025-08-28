@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Icon, Table, TableBody, TableCell, TablePagination, TableRow, Checkbox } from '@material-ui/core';
+import { Table, TableBody, TableCell, TablePagination, TableRow, Checkbox } from '@material-ui/core';
 import { FuseScrollbars } from '@fuse';
 import { withRouter } from 'react-router-dom';
 import SharkAttacksTableHead from './SharkAttacksTableHead';

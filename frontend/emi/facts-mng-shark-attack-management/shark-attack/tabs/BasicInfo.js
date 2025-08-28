@@ -20,9 +20,8 @@ export function basicInfoFormValidationsGenerator(T) {
         name: Yup.string()
             .min(3, T.translate("shark_attack.form_validations.name.length", {len:3}))
             .required(T.translate("shark_attack.form_validations.name.required")),
-        age: Yup.number()
-            .min(0, T.translate("shark_attack.form_validations.age.min", {min: 0}))
-            .max(120, T.translate("shark_attack.form_validations.age.max", {max: 120}))
+        age: Yup.string()
+            .required(T.translate("shark_attack.form_validations.age.required")),
     };
 }
 

@@ -12,7 +12,7 @@ const initialState = {
     filters: {
         name: '',
         active: null,
-        organizationId: undefined,
+        organizationId: '',
         country: '',
         type: '',
         species: ''
@@ -21,7 +21,8 @@ const initialState = {
         loading: false,
         success: false,
         error: null
-    }
+    },
+    isImporting: false
 };
 
 const sharkAttacksReducer = function (state = initialState, action) {
@@ -102,21 +103,24 @@ const sharkAttacksReducer = function (state = initialState, action) {
             {
                 return {
                     ...state,
-                    import: { ...state.import, loading: true, success: false, error: null }
+                    import: { ...state.import, loading: true, success: false, error: null },
+                    isImporting: true
                 };
             }
         case Actions.IMPORT_SHARK_ATTACKS_SUCCESS:
             {
                 return {
                     ...state,
-                    import: { ...state.import, loading: false, success: true, error: null }
+                    import: { ...state.import, loading: false, success: true, error: null },
+                    isImporting: false
                 };
             }
         case Actions.IMPORT_SHARK_ATTACKS_ERROR:
             {
                 return {
                     ...state,
-                    import: { ...state.import, loading: false, success: false, error: action.payload }
+                    import: { ...state.import, loading: false, success: false, error: action.payload },
+                    isImporting: false
                 };
             }
         case 'CLEAR_IMPORT_MESSAGES':

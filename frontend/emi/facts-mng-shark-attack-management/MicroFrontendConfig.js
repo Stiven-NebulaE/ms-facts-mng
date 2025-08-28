@@ -32,7 +32,7 @@ export const MicroFrontendConfig = {
             children: [{
                 'id': 'facts-mng-shark-attack-management',
                 'type': 'item',
-                'icon': 'business',
+                'icon': 'pool',
                 'url': '/shark-attack-mng',
                 'priority': 2000,
                 auth

@@ -27,7 +27,7 @@ type FactsMngSharkAttack {
   "The sex of the victim"
   sex: String
   "The age of the victim"
-  age: Int
+  age: String
   "The outcome of the incident"
   injury: String
   "Whether the incident was fatal (Y/N)"
@@ -91,7 +91,7 @@ input FactsMngSharkAttackFilterInput {
   "Sex"
   sex: String
   "Age"
-  age: Int
+  age: String
   "Injury"
   injury: String
   "Fatal Y/N"
@@ -152,7 +152,7 @@ input FactsMngSharkAttackInput {
   "The sex of the victim"
   sex: String
   "The age of the victim"
-  age: Int
+  age: String
   "The outcome of the incident"
   injury: String
   "Whether the incident was fatal (Y/N)"
@@ -195,7 +195,7 @@ type Mutation {
   "Deletes an SharkAttack"
   FactsMngDeleteSharkAttacks(ids: [ID]!): CommandResponse  
   "Import shark attacks from external API"
-  importSharkAttacks: CommandResponse
+  FactsMngImportSharkAttacks(organizationId: String!): CommandResponse
 }
 
 

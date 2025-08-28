@@ -1,10 +1,10 @@
 export default {
   navigation: {
     'settings': 'Settings',
-    'facts-mng-shark-attack-management': 'SharkAttacks',
+    'facts-mng-shark-attack-management': 'Shark Attacks',
   },
   shark_attacks: {
-    shark_attacks: 'SharkAttacks',
+    shark_attacks: 'Shark Attacks',
     search: 'Quick search by name',
     add_new_shark_attack: 'ADD NEW',
     add_new_shark_attack_short: 'NEW',
@@ -34,7 +34,7 @@ export default {
     }
   },
   shark_attack: {
-    shark_attacks: 'SharkAttacks',
+    shark_attacks: 'Shark Attack',
     shark_attack_detail: 'SharkAttack detail',
     save: 'SAVE',
     basic_info: 'Basic Info',
@@ -92,8 +92,7 @@ export default {
         required: "Country is required",
       },
       age: {
-        min: "Age must be at least {min}",
-        max: "Age cannot be greater than {max}",
+        required: "Age is required",
       }
     },
   }

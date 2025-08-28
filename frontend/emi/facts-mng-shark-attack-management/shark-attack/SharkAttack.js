@@ -1,8 +1,8 @@
 /* React core */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 /* UI core */
-import { Button, Tab, Tabs, TextField, Icon, Typography, Switch, FormControlLabel } from '@material-ui/core';
+import { Button, Tab, Tabs, Icon, Typography } from '@material-ui/core';
 import { FuseAnimate, FusePageCarded, FuseLoading } from '@fuse';
 import { useForm } from '@fuse/hooks';
 /* GraphQL Client hooks */
@@ -31,6 +31,7 @@ import {
 } from "../gql/SharkAttack";
 import Metadata from './tabs/Metadata';
 import { BasicInfo, basicInfoFormValidationsGenerator } from './tabs/BasicInfo';
+import SharkAttackCountryDetails from './SharkAttackCountryDetails';
 
 
 /**
@@ -79,8 +80,7 @@ function SharkAttack(props) {
     const [tabValue, setTabValue] = useState(0);
     const { form, handleChange: formHandleChange, setForm } = useForm(null);
     const [errors, setErrors] = useState([]);
-    const [relatedCases, setRelatedCases] = useState([]);
-    const [loadingRelatedCases, setLoadingRelatedCases] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
 
     //Translation services
     let T = new MDText(i18n.get(loggedUser.locale));
@@ -201,40 +201,46 @@ function SharkAttack(props) {
     }
 
     /**
+     * Convert numeric fields from string to number for GraphQL
+     */
+    function convertNumericFields(data) {
+        const numericFields = ['age', 'year'];
+        const converted = { ...data };
+        
+        numericFields.forEach(field => {
+            converted[field] = Number(converted[field]) || null;
+        });
+        
+        return converted;
+    }
+
+    /**
      * Handle the Save button action
      */
     function handleSave() {
         const { id } = form;
+        const convertedForm = convertNumericFields(form);
+        
         if (id === undefined) {
-            createSharkAttack({ variables: { input: { ...form, organizationId: loggedUser.selectedOrganization.id } } });
+            createSharkAttack({ variables: { input: { ...convertedForm, organizationId: loggedUser.selectedOrganization.id } } });
         } else {
-            updateSharkAttack({ variables: { id, input: { ...form, id: undefined, __typename: undefined, metadata: undefined }, merge: true } });
+            updateSharkAttack({ variables: { id, input: { ...convertedForm, id: undefined, __typename: undefined, metadata: undefined }, merge: true } });
         }
     }
 
     /**
      * Handle the query related cases button action
      */
-    async function handleQueryRelatedCases() {
+    function handleQueryRelatedCases() {
         if (!form.country) return;
-        setLoadingRelatedCases(true);
-        try {
-            const response = await fetch(`https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/global-shark-attack/records?where=country%3D'${encodeURIComponent(form.country.toUpperCase())}'&limit=5`);
-            const data = await response.json();
-            
-            if (data.results) {
-                setRelatedCases(data.results);
-            }
-        } catch (error) {
-            console.error('Error fetching related cases:', error);
-        } finally {
-            setLoadingRelatedCases(false);
-        }
+        setModalOpen(true);
     }
 
+
+
     /*
-    *  ====== ALTERNATIVE PAGES TO RENDER ========
-    */
+     *  ====== ALTERNATIVE PAGES TO RENDER ========
+     */
 
     // Shows an ERROR page when a really important server response fails
     const gqlError = readSharkAttackResult.error;
@@ -262,165 +268,141 @@ function SharkAttack(props) {
     */
 
     return (
-        <FusePageCarded
-            classes={{
-                toolbar: "p-0",
-                header: "min-h-72 h-72 sm:h-136 sm:min-h-136"
-            }}
-            header={
-                form && (
-                    <div className="flex flex-1 w-full items-center justify-between">
+        <>
+            <FusePageCarded
+                classes={{
+                    toolbar: "p-0",
+                    header: "min-h-72 h-72 sm:h-136 sm:min-h-136"
+                }}
+                header={
+                    form && (
+                        <div className="flex flex-1 w-full items-center justify-between">
 
-                        <div className="flex flex-col items-start max-w-full">
+                            <div className="flex flex-col items-start max-w-full">
 
-                            <FuseAnimate animation="transition.slideRightIn" delay={300}>
-                                <Typography className="normal-case flex items-center sm:mb-12" component={Link} role="button" to="/shark-attack-mng/shark-attacks" color="inherit">
-                                    <Icon className="mr-4 text-20">arrow_back</Icon>
-                                    {T.translate("shark_attack.shark_attacks")}
-                                </Typography>
-                            </FuseAnimate>
-
-                            <div className="flex items-center max-w-full">
-                                <FuseAnimate animation="transition.expandIn" delay={300}>
-                                    <Icon className="text-32 mr-0 sm:text-48 mr-12">business</Icon>
+                                <FuseAnimate animation="transition.slideRightIn" delay={300}>
+                                    <Typography className="normal-case flex items-center sm:mb-12" component={Link} role="button" to="/shark-attack-mng/shark-attacks" color="inherit">
+                                        <Icon className="mr-4 text-20">arrow_back</Icon>
+                                        {T.translate("shark_attack.shark_attacks")}
+                                    </Typography>
                                 </FuseAnimate>
 
-                                <div className="flex flex-col min-w-0">
-                                    <FuseAnimate animation="transition.slideLeftIn" delay={300}>
-                                        <Typography className="text-16 sm:text-20 truncate">
-                                            {form.name ? form.name : 'New SharkAttack'}
-                                        </Typography>
+                                <div className="flex items-center max-w-full">
+                                    <FuseAnimate animation="transition.expandIn" delay={300}>
+                                        <Icon className="text-32 mr-0 sm:text-48 md:mr-12">pool</Icon>
                                     </FuseAnimate>
-                                    <FuseAnimate animation="transition.slideLeftIn" delay={300}>
-                                        <Typography variant="caption">{T.translate("shark_attack.shark_attack_detail")}</Typography>
-                                    </FuseAnimate>
+
+                                    <div className="flex flex-col min-w-0">
+                                        <FuseAnimate animation="transition.slideLeftIn" delay={300}>
+                                            <Typography className="text-16 sm:text-20 truncate">
+                                                {form.name ? form.name : T.translate("shark_attack.shark_attacks")}
+                                            </Typography>
+                                        </FuseAnimate>
+                                        <FuseAnimate animation="transition.slideLeftIn" delay={300}>
+                                            <Typography variant="caption">{T.translate("shark_attack.shark_attack_detail")}</Typography>
+                                        </FuseAnimate>
+                                    </div>
                                 </div>
                             </div>
+                            <FuseAnimate animation="transition.slideRightIn" delay={300}>
+                                <div className="flex items-center">
+                                    <div className="mr-1 md:mr-8">
+                                    <Button
+                                        className="whitespace-no-wrap text-white border-white hover:scale-105 transition-all duration-200 text-sm"
+                                        variant="outlined"
+                                        color="primary"
+                                        onClick={() => handleQueryRelatedCases()}
+                                        disabled={!form.country}
+                                    >
+                                        {T.translate("shark_attack.query_related_cases", { country: form.country || '' })}
+                                    </Button>
+                                    </div>
+                                    <Button
+                                        className="whitespace-no-wrap"
+                                        variant="contained"
+                                        disabled={!canBeSubmitted()}
+                                        onClick={handleSave}
+                                    >
+                                        {T.translate("shark_attack.save")}
+                                    </Button>
+                                </div>
+                            </FuseAnimate>
                         </div>
-                        <FuseAnimate animation="transition.slideRightIn" delay={300}>
-                            <div className="flex items-center space-x-8">
-                                <Button
-                                    className="whitespace-no-wrap"
-                                    variant="outlined"
-                                    color="primary"
-                                    onClick={() => handleQueryRelatedCases()}
-                                    disabled={!form.country}
-                                >
-                                    {T.translate("shark_attack.query_related_cases", { country: form.country || '' })}
-                                </Button>
-                                <Button
-                                    className="whitespace-no-wrap"
-                                    variant="contained"
-                                    disabled={!canBeSubmitted()}
-                                    onClick={handleSave}
-                                >
-                                    {T.translate("shark_attack.save")}
-                                </Button>
-                            </div>
-                        </FuseAnimate>
-                    </div>
-                )
-            }
-            contentToolbar={
-                <Tabs
-                    value={tabValue}
-                    onChange={handleChangeTab}
-                    indicatorColor="secondary"
-                    textColor="secondary"
-                    variant="scrollable"
-                    scrollButtons="auto"
-                    classes={{ root: "w-full h-64" }}
-                >
-                    <Tab className="h-64 normal-case" label={T.translate("shark_attack.basic_info")} />
+                    )
+                }
+                contentToolbar={
+                    <Tabs
+                        value={tabValue}
+                        onChange={handleChangeTab}
+                        indicatorColor="secondary"
+                        textColor="secondary"
+                        variant="scrollable"
+                        scrollButtons="auto"
+                        classes={{ root: "w-full h-64" }}
+                    >
+                        <Tab className="h-64 normal-case" label={T.translate("shark_attack.basic_info")} />
 
-                    {(form && form.metadata) && (<Tab className="h-64 normal-case" label={T.translate("shark_attack.metadata_tab")} />)}
-                </Tabs>
-            }
-            content={
-                form && (
-                    <div className="p-16 sm:p-24 max-w-2xl">
+                        {(form && form.metadata) && (<Tab className="h-64 normal-case" label={T.translate("shark_attack.metadata_tab")} />)}
+                    </Tabs>
+                }
+                content={
+                    form && (
+                        <div className="p-16 sm:p-24 max-w-2xl">
 
-                        <Formik
-                            initialValues={{ ...form }}
-                            enableReinitialize
-                            onSubmit={handleSave}
-                            validationSchema={Yup.object().shape({
-                                ...basicInfoFormValidationsGenerator(T)
-                            })}
+                            <Formik
+                                initialValues={{ ...form }}
+                                enableReinitialize
+                                onSubmit={handleSave}
+                                validationSchema={Yup.object().shape({
+                                    ...basicInfoFormValidationsGenerator(T)
+                                })}
 
-                        >
+                            >
 
-                            {(props) => {
-                                const {
-                                    values,
-                                    touched,
-                                    errors,
-                                    setFieldTouched,
-                                    handleChange,
-                                    handleSubmit
-                                } = props;
+                                {(props) => {
+                                    const {
+                                        values,
+                                        touched,
+                                        errors,
+                                        setFieldTouched,
+                                        handleChange,
+                                        handleSubmit
+                                    } = props;
 
-                                setErrors(errors);
-                                const onChange = (fieldName) => (event) => {
-                                    event.persist();
-                                    setFieldTouched(fieldName);
-                                    handleChange(event);
-                                    formHandleChange(event);
-                                };
+                                    setErrors(errors);
+                                    const onChange = (fieldName) => (event) => {
+                                        event.persist();
+                                        setFieldTouched(fieldName);
+                                        handleChange(event);
+                                        formHandleChange(event);
+                                    };
 
-                                return (
-                                    <form noValidate onSubmit={handleSubmit}>
-                                        {tabValue === 0 && <BasicInfo dataSource={values} {...{ T, onChange, canWrite, errors, touched }} />}
-                                        {tabValue === 1 && <Metadata dataSource={values} T={T} />}
-                                    </form>
-                                );
-                            }}
-                        </Formik>
-
-                        {/* Related Cases Section */}
-                        {(loadingRelatedCases || relatedCases.length > 0) && (
-                            <div className="mt-32">
-                                <Typography variant="h6" className="mb-16">
-                                    {T.translate("shark_attack.related_cases_title", { country: form.country || '' })}
-                                </Typography>
-                                
-                                {loadingRelatedCases && (
-                                    <div className="flex items-center justify-center p-24">
-                                        <FuseLoading />
-                                    </div>
-                                )}
-                                
-                                {!loadingRelatedCases && relatedCases.length > 0 && (
-                                    <div className="bg-gray-50 p-16 rounded-8">
-                                        {relatedCases.map((case_, index) => (
-                                            <div key={index} className="mb-12 p-12 bg-white rounded-4 border-l-4 border-blue-500">
-                                                <Typography variant="subtitle1" className="font-semibold">
-                                                    {case_.name || 'Unknown Victim'} - {case_.date || 'Unknown Date'}
-                                                </Typography>
-                                                <Typography variant="body2" color="textSecondary">
-                                                    {case_.location || ''} {case_.area ? `(${case_.area})` : ''}
-                                                </Typography>
-                                                <Typography variant="body2" color="textSecondary">
-                                                    {case_.activity || ''} - {case_.species || 'Unknown Species'}
-                                                </Typography>
-                                                {case_.fatal_y_n && (
-                                                    <Typography variant="body2" color="textSecondary">
-                                                        Fatal: {case_.fatal_y_n === 'Y' ? 'Yes' : case_.fatal_y_n === 'N' ? 'No' : 'Unknown'}
-                                                    </Typography>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                                    return (
+                                        <form noValidate onSubmit={handleSubmit}>
+                                            {tabValue === 0 && <BasicInfo dataSource={values} {...{ T, onChange, canWrite, errors, touched }} />}
+                                            {tabValue === 1 && <Metadata dataSource={values} T={T} />}
+                                        </form>
+                                    );
+                                }}
+                            </Formik>
 
 
-                    </div>
-                )
-            }
-            innerScroll
-        />
+
+
+                        </div>
+                    )
+                }
+                innerScroll
+            />
+
+            {/* Related Cases Modal */}
+            <SharkAttackCountryDetails
+                open={modalOpen}
+                onClose={() => setModalOpen(false)}
+                country={form && form.country}
+                loggedUser={loggedUser}
+            />
+        </>
     )
 }
 

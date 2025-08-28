@@ -169,8 +169,6 @@ Time-based jobs that are configured and triggered by the [CronJob MicroService](
 * [docker-compose](https://docs.docker.com/compose/install/)
 * [nodemon](https://www.npmjs.com/package/nodemon) 
    ```npm install -g nodemon```
-* [nodemon](https://www.npmjs.com/package/gulp) 
-   ```npm i -g gulp```
 * [Nebulae CLI](https://www.npmjs.com/package/@nebulae/cli)  
   ```npm install -g @nebulae/cli```  
 

@@ -26,10 +26,10 @@ services:
     image: nats:latest
     ports:
      - "4222:4222"
-    command: -js -c /etc/nats/nats-server.conf
+    command: -js -c /etc/nats/custom-nats-server.conf
     volumes: 
       - NEBULAE_NATS:/nats/db
-      - ./nats-server.conf:/etc/nats/nats-server.conf
+      - ./nats-server.conf:/etc/nats/custom-nats-server.conf
   # REDIS
   redis:
     image: redis:7.0.11-alpine

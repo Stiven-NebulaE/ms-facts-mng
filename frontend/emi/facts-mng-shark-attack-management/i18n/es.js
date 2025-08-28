@@ -1,10 +1,10 @@
 export default {
   navigation: {
     'settings': 'Configuraciones',
-    'facts-mng-shark-attack-management': 'SharkAttacks',
+    'facts-mng-shark-attack-management': 'Ataques de tiburones',
   },
   shark_attacks: {
-    shark_attacks: 'SharkAttacks',
+    shark_attacks: 'Ataques de tiburones',
     search: 'Búsqueda rápida por nombre',
     add_new_shark_attack: 'Agregar Nueva',
     add_new_shark_attack_short: 'Agregar',
@@ -34,8 +34,8 @@ export default {
     }
   },
   shark_attack: {
-    shark_attacks: 'SharkAttacks',
-    shark_attack_detail: 'Detalle de la SharkAttack',
+    shark_attacks: 'Ataque de tiburón',
+    shark_attack_detail: 'Detalle de ataque de tiburón',
     save: 'GUARDAR',
     basic_info: 'Información Básica',
     date: 'Fecha',
@@ -92,8 +92,7 @@ export default {
         required: "El país es requerido",
       },
       age: {
-        min: "La edad debe ser al menos {min}",
-        max: "La edad no puede ser mayor a {max}",
+        required: "La edad es requerida",
       }
     },
   }
