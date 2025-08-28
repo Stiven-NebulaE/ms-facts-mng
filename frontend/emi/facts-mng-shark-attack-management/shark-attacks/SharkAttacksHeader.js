@@ -1,5 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Paper, Button, Input, Icon, Typography, Hidden, IconButton } from '@material-ui/core';
+import React
+// , 
+// { useState, useEffect }
+ from 'react';
+import { Button, Icon, Typography, Hidden, IconButton, 
+// Input,
+// Paper,
+} from '@material-ui/core';
 import { ThemeProvider } from '@material-ui/styles';
 import { FuseAnimate } from '@fuse';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,35 +14,35 @@ import * as Actions from '../store/actions';
 import { MDText } from 'i18n-react';
 import i18n from "../i18n";
 import _ from '@lodash';
-import { useEventCallback } from 'rxjs-hooks'
-import { debounceTime } from "rxjs/operators";
+// import { useEventCallback } from 'rxjs-hooks'
+// import { debounceTime } from "rxjs/operators";
 
 function SharkAttacksHeader(props) {
     const dispatch = useDispatch();
     const user = useSelector(({ auth }) => auth.user);
-    const mainTheme = useSelector(({ fuse }) => fuse.settings.mainTheme);
-    const searchTextFilter = useSelector(({ SharkAttackManagement }) => SharkAttackManagement.sharkAttacks.filters.name);
-    const [searchText, setSearchText] = useState(searchTextFilter)
-    const [keywordCallBack, keyword] = useEventCallback(
-        (event$) => event$.pipe(debounceTime(500))
-    )
+    // const mainTheme = useSelector(({ fuse }) => fuse.settings.mainTheme);
+    // const searchTextFilter = useSelector(({ SharkAttackManagement }) => SharkAttackManagement.sharkAttacks.filters.name);
+    // const [searchText, setSearchText] = useState(searchTextFilter)
+    // const [keywordCallBack, keyword] = useEventCallback(
+    //     (event$) => event$.pipe(debounceTime(500))
+    // )
 
     const T = new MDText(i18n.get(user.locale));
     const isImporting = useSelector(({ SharkAttackManagement }) => SharkAttackManagement.sharkAttacks.isImporting);
 
-    function handleSearchChange(evt) {
-        keywordCallBack(evt.target.value);
-        setSearchText(evt.target.value);
-    }
+    // function handleSearchChange(evt) {
+    //     keywordCallBack(evt.target.value);
+    //     setSearchText(evt.target.value);
+    // }
     
     function handleImport() {
         dispatch(Actions.importSharkAttacks(user.data.organizationId));
     }
     
-    useEffect(() => {
-        if (keyword !== undefined && keyword !== null)
-            dispatch(Actions.setSharkAttacksFilterName(keyword))
-    }, [keyword, dispatch]);
+    // useEffect(() => {
+    //     if (keyword !== undefined && keyword !== null)
+    //         dispatch(Actions.setSharkAttacksFilterName(keyword))
+    // }, [keyword, dispatch]);
 
     return (
         <div className="flex flex-1 w-full items-center justify-between">
@@ -61,7 +67,7 @@ function SharkAttacksHeader(props) {
 
             <div className="flex flex-1 items-center justify-center px-12">
 
-                <ThemeProvider theme={mainTheme}>
+                {/* <ThemeProvider theme={mainTheme}>
                     <FuseAnimate animation="transition.slideDownIn" delay={300}>
                         <Paper className="flex items-center w-full max-w-512 px-8 py-4 rounded-8" elevation={1}>
 
@@ -80,7 +86,7 @@ function SharkAttacksHeader(props) {
                             />
                         </Paper>
                     </FuseAnimate>
-                </ThemeProvider>
+                </ThemeProvider> */}
 
             </div>
             <FuseAnimate animation="transition.slideRightIn" delay={300}>
