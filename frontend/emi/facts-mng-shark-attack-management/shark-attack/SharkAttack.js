@@ -353,7 +353,7 @@ function SharkAttack(props) {
 
                             <Formik
                                 initialValues={{ ...form }}
-                                enableReinitialize
+                                enableReinitialize={false}
                                 onSubmit={handleSave}
                                 validationSchema={Yup.object().shape({
                                     ...basicInfoFormValidationsGenerator(T)
