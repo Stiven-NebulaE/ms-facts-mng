@@ -211,6 +211,7 @@ export function BasicInfo(props) {
                         className="mt-8 mb-16"
                         helperText={(errors.age && touched.age) && errors.age}
                         error={errors.age && touched.age}
+                        required
                         label={T.translate("shark_attack.age")}
                         id="age"
                         name="age"
@@ -219,7 +220,6 @@ export function BasicInfo(props) {
                         onBlur={onChange("age")}
                         variant="outlined"
                         fullWidth
-                        type="number"
                         InputProps={{
                             readOnly: !canWrite(),
                         }}

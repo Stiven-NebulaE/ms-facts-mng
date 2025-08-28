@@ -109,7 +109,7 @@ function SharkAttacksTableHead(props) {
                                                         </DialogContentText>
                                                     </DialogContent>
                                                     <DialogActions>
-                                                        <Button onClick={() => { dispatch(Actions.closeDialog()); closeSelectedSharkAttacksMenu() }} color="primary">
+                                                        <Button onClick={() => { dispatch(Actions.closeDialog()); closeSelectedSharkAttacksMenu() }} color="primary" variant="contained">
                                                             {T.translate("shark_attacks.remove_dialog_no")}
                                                         </Button>
                                                         <Button onClick={() => { dispatch(Actions.closeDialog()); closeSelectedSharkAttacksMenu(); removeHandler() }} color="primary" autoFocus>

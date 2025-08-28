@@ -21,7 +21,7 @@ export default {
       type: 'Tipo',
       species: 'Especie'
     },
-    remove_dialog_title: "¿Desea eliminar las sharkAttacks seleccionadas?",
+    remove_dialog_title: "¿Desea eliminar los ataques de tiburón seleccionados?",
     remove_dialog_description: "Esta acción no se puede deshacer",
     remove_dialog_no: "No",
     remove_dialog_yes: "Si",

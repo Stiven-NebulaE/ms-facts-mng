@@ -21,7 +21,7 @@ export default {
       type: 'Type',
       species: 'Species'
     },
-    remove_dialog_title: "Do you want to delete the selected SharkAttacks??",
+    remove_dialog_title: "Do you want to delete the selected Shark Attacks?",
     remove_dialog_description: "This action can not be undone",
     remove_dialog_no: "No",
     remove_dialog_yes: "Yes",

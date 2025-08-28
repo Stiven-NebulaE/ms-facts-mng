@@ -204,7 +204,7 @@ function SharkAttack(props) {
      * Convert numeric fields from string to number for GraphQL
      */
     function convertNumericFields(data) {
-        const numericFields = ['age', 'year'];
+        const numericFields = ['year'];
         const converted = { ...data };
         
         numericFields.forEach(field => {
