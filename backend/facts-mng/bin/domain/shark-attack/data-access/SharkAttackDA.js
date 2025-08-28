@@ -241,6 +241,7 @@ class SharkAttackDA {
     const axios = require('axios');
     const { brokerFactory } = require("@nebulae/backend-node-tools").broker;
     const broker = brokerFactory();
+    const uuidv4 = require("uuid/v4");
 
     console.log('Starting import from API...');
     
@@ -251,9 +252,16 @@ class SharkAttackDA {
         console.log('API Response status:', response.status);
         console.log('API Response data length:', response.data.results ? response.data.results.length : 0);
         const records = response.data.results;
+        
         const importPromises = records.map(record => {
+          // Asegurar que el _id sea válido
+          let documentId = record.original_order;
+          if (!documentId || documentId === null || documentId === undefined) {
+            documentId = uuidv4();
+          }
+          
           const sharkAttackData = {
-            _id: record.original_order,
+            _id: documentId,
             date: record.date,
             year: record.year,
             type: record.type,
@@ -285,14 +293,14 @@ class SharkAttackDA {
           };
           
           return collection.updateOne(
-            { _id: record.original_order },
+            { _id: documentId },
             { $set: sharkAttackData },
             { upsert: true }
           ).then(result => {
             // Generate Event Sourcing event
             const event = {
               etv: 1,
-              aid: record.original_order,
+              aid: documentId,
               av: 1,
               data: sharkAttackData,
               user: createdBy,
@@ -335,6 +343,8 @@ class SharkAttackDA {
       })
     );
   }
+
+
 }
 /**
  * @returns {SharkAttackDA}

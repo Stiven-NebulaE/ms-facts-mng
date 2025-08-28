@@ -36,7 +36,7 @@ function SharkAttacksHeader(props) {
     useEffect(() => {
         if (keyword !== undefined && keyword !== null)
             dispatch(Actions.setSharkAttacksFilterName(keyword))
-    }, [keyword]);
+    }, [keyword, dispatch]);
 
     return (
         <div className="flex flex-1 w-full items-center justify-between">
@@ -94,10 +94,12 @@ function SharkAttacksHeader(props) {
                         onClick={handleImport}
                         disabled={isImporting}
                     >
+                        <Icon style={{ marginRight: 8 }}>get_app</Icon>
                         {isImporting ? T.translate("shark_attacks.importing") : T.translate("shark_attacks.import")}
                     </Button>
                     </div>
                     <Button component={Link} to="/shark-attack-mng/shark-attacks/new" className="whitespace-no-wrap" variant="contained">
+                        <Icon style={{ marginRight: 8 }}>add</Icon>
                         <span className="hidden sm:flex">{T.translate("shark_attacks.add_new_shark_attack")}</span>
                         <span className="flex sm:hidden">{T.translate("shark_attacks.add_new_shark_attack_short")}</span>
                     </Button>

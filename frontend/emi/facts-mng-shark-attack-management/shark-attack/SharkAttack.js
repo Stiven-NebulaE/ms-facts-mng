@@ -308,12 +308,13 @@ function SharkAttack(props) {
                                 <div className="flex items-center">
                                     <div className="mr-1 md:mr-8">
                                     <Button
-                                        className="whitespace-no-wrap text-white border-white hover:scale-105 transition-all duration-200 text-sm"
+                                        className="whitespace-no-wrap text-white"
                                         variant="outlined"
                                         color="primary"
                                         onClick={() => handleQueryRelatedCases()}
                                         disabled={!form.country}
                                     >
+                                        <Icon style={{ marginRight: 8 }}>search</Icon>
                                         {T.translate("shark_attack.query_related_cases", { country: form.country || '' })}
                                     </Button>
                                     </div>
@@ -323,6 +324,7 @@ function SharkAttack(props) {
                                         disabled={!canBeSubmitted()}
                                         onClick={handleSave}
                                     >
+                                        <Icon style={{ marginRight: 8 }}>save</Icon>
                                         {T.translate("shark_attack.save")}
                                     </Button>
                                 </div>

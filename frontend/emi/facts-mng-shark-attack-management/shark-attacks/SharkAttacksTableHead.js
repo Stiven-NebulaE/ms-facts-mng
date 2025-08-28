@@ -138,7 +138,7 @@ function SharkAttacksTableHead(props) {
                             key={row.id}
                             align={row.align}
                             padding={row.disablePadding ? 'none' : 'default'}
-                            sortDirection={order.id === row.id ? order.direction : false}
+                            sortDirection={order && order.id === row.id ? order.direction : false}
                         >
                             {row.sort && (
                                 <Tooltip
@@ -147,8 +147,8 @@ function SharkAttacksTableHead(props) {
                                     enterDelay={300}
                                 >
                                     <TableSortLabel
-                                        active={order.id === row.id}
-                                        direction={order.direction}
+                                        active={order && order.id === row.id}
+                                        direction={order && order.id === row.id ? order.direction : 'asc'}
                                         onClick={createSortHandler(row.id)}
                                     >
                                         {row.label}
@@ -160,7 +160,7 @@ function SharkAttacksTableHead(props) {
                             )}
                         </TableCell>
                     );
-                }, this)}
+                })}
             </TableRow>
         </TableHead>
     );
