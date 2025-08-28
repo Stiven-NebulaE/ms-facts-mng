@@ -10,7 +10,7 @@ export function basicInfoFormValidationsGenerator(T) {
         date: Yup.string()
             .required(T.translate("shark_attack.form_validations.date.required")),
         year: Yup.number()
-            .min(1900, T.translate("shark_attack.form_validations.year.min", {min: 1900}))
+            .min(1700, T.translate("shark_attack.form_validations.year.min", {min: 1700}))
             .max(new Date().getFullYear(), T.translate("shark_attack.form_validations.year.max", {max: new Date().getFullYear()}))
             .required(T.translate("shark_attack.form_validations.year.required")),
         type: Yup.string()
