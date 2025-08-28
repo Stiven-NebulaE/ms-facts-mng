@@ -1,5 +1,5 @@
 /* React core */
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 /* UI core */
 import { Button, Tab, Tabs, Icon, Typography } from '@material-ui/core';
