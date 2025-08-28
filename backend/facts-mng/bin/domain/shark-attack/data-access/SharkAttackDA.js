@@ -2,13 +2,10 @@
 
 let mongoDB = undefined;
 const { map, mapTo, catchError, toArray } = require("rxjs/operators");
-const { of, Observable, defer, from } = require("rxjs");
+const { Observable, defer, from } = require("rxjs");
 const { mergeMap } = require("rxjs/operators");
 
-const { CustomError } = require("@nebulae/backend-node-tools").error;
-
 const CollectionName = 'SharkAttack';
-const MATERIALIZED_VIEW_TOPIC = "emi-gateway-materialized-view-updates";
 
 class SharkAttackDA {
   static start$(mongoDbInstance) {
@@ -239,8 +236,6 @@ class SharkAttackDA {
     console.log('Method importSharkAttacksFromAPI called with organizationId:', organizationId);
     const collection = mongoDB.db.collection(CollectionName);
     const axios = require('axios');
-    const { brokerFactory } = require("@nebulae/backend-node-tools").broker;
-    const broker = brokerFactory();
     const uuidv4 = require("uuid/v4");
 
     console.log('Starting import from API...');
@@ -297,23 +292,8 @@ class SharkAttackDA {
             { $set: sharkAttackData },
             { upsert: true }
           ).then(result => {
-            // Generate Event Sourcing event
-            const event = {
-              etv: 1,
-              aid: documentId,
-              av: 1,
-              data: sharkAttackData,
-              user: createdBy,
-              timestamp: Date.now()
-            };
-            
-            return broker.publish$(MATERIALIZED_VIEW_TOPIC, {
-              aggregateType: 'SharkAttack',
-              eventType: 'Reported',
-              ...event
-            }).pipe(
-              map(() => result)
-            );
+            // Return the imported data for event generation in CRUD layer
+            return sharkAttackData;
           });
         });
         
@@ -322,24 +302,16 @@ class SharkAttackDA {
       }),
       mergeMap(results => 
         from(results).pipe(
-          mergeMap(result => result),
           toArray()
         )
       ),
-      map(results => {
-        const importedCount = results.filter(r => r.upsertedCount > 0 || r.modifiedCount > 0).length;
-        console.log('Import completed. Imported count:', importedCount);
-        return { 
-          code: 200, 
-          message: `Successfully imported ${importedCount} shark attacks` 
-        };
+      map(importedRecords => {
+        console.log('Import completed. Imported count:', importedRecords.length);
+        return importedRecords; // Return the actual imported records
       }),
       catchError(error => {
         console.error('Import error:', error.message);
-        return of({ 
-          code: 500, 
-          message: `Error importing shark attacks: ${error.message}` 
-        });
+        throw error; // Let the CRUD layer handle the error
       })
     );
   }

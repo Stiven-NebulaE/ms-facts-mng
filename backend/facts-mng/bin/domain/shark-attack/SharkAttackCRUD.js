@@ -176,18 +176,44 @@ class SharkAttackCRUD {
    * @param {*} authToken 
    */
   importSharkAttacks$({ args }, authToken) {
-    const createdBy = authToken.userId || 'system';
+    const createdBy = authToken.preferred_username || 'system';
     const { organizationId } = args;
     console.log('CRUD: Starting import process for user:', createdBy, 'organizationId:', organizationId);
     
     return SharkAttackDA.importSharkAttacksFromAPI$(createdBy, organizationId).pipe(
-      mergeMap(result => {
-        console.log('CRUD: Import result:', result);
-        return CqrsResponseHelper.buildSuccessResponse$(result);
+      mergeMap(importedRecords => {
+        console.log('CRUD: Import completed, generating events for', importedRecords.length, 'records');
+        
+        // Generate Event Sourcing events for each imported record
+        const eventPromises = importedRecords.map(record => {
+          const event = new Event({
+            eventType: 'Reported',
+            eventTypeVersion: 1,
+            aggregateType: 'SharkAttack',
+            aggregateId: record._id,
+            data: {
+              record,
+              importedAt: Date.now()
+            },
+            user: createdBy
+          });
+          
+          return eventSourcing.emitEvent$(event, { autoAcknowledgeKey: process.env.MICROBACKEND_KEY });
+        });
+        
+        return forkJoin(
+          CqrsResponseHelper.buildSuccessResponse$({ 
+            code: 200, 
+            message: `Successfully imported ${importedRecords.length} shark attacks`,
+            importedCount: importedRecords.length
+          }),
+          ...eventPromises
+        );
       }),
+      map(([successResponse]) => successResponse),
       catchError(error => {
         console.error('CRUD: Import error:', error.message);
-        return CqrsResponseHelper.buildErrorResponse$(error.message, error.code);
+        return CqrsResponseHelper.handleError$(error);
       })
     );
   }
