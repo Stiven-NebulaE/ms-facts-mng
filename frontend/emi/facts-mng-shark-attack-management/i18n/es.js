@@ -66,12 +66,17 @@ export default {
       updatedBy: 'Modificado por',
       updatedAt: 'Modificado el',
     },
+    modal_details: {
+      title: 'Casos Relacionados en {country}',
+      close: 'Cerrar',
+      unknown: 'Desconocido',
+      yes: 'Sí',
+    },
     not_found: 'Lo sentimos pero no pudimos encontrar la entidad que busca',
     internal_server_error: 'Error Interno del Servidor',
     update_success: 'SharkAttack ha sido actualizado',
     create_success: 'SharkAttack ha sido creado',
     query_related_cases: 'Consultar más casos en {country}',
-    related_cases_title: 'Casos Relacionados en {country}',
     form_validations: {
       name: {
         length: "El nombre debe tener al menos {len} caracteres",

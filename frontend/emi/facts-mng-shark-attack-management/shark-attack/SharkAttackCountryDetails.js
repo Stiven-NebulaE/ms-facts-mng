@@ -95,14 +95,14 @@ function SharkAttackCountryDetails({ open, onClose, country, loggedUser }) {
             <div style={modalStyle} className={classes.paper}>
                 <div className="flex justify-between items-center mb-16">
                     <Typography variant="h5" id="related-cases-modal-title">
-                        {T.translate("shark_attack.related_cases_title", { country: country || '' })}
+                        {T.translate("shark_attack.modal_details.title", { country: country || '' })}
                     </Typography>
                     <Button
                         onClick={onClose}
                         variant="outlined"
                         size="small"
                     >
-                        Cerrar
+                        {T.translate("shark_attack.modal_details.close")}
                     </Button>
                 </div>
 
@@ -118,17 +118,17 @@ function SharkAttackCountryDetails({ open, onClose, country, loggedUser }) {
                                     {case_.name || 'Unknown Victim'} - {case_.date || 'Unknown Date'}
                                 </Typography>
                                 <Typography variant="body2" color="textSecondary" className="mb-4">
-                                    <strong>Ubicación:</strong> {case_.location || ''} {case_.area ? `(${case_.area})` : ''}
+                                    <strong>{T.translate("shark_attack.location")}:</strong> {case_.location || ''} {case_.area ? `(${case_.area})` : ''}
                                 </Typography>
                                 <Typography variant="body2" color="textSecondary" className="mb-4">
-                                    <strong>Actividad:</strong> {case_.activity || ''}
+                                    <strong>{T.translate("shark_attack.activity")}:</strong> {case_.activity || ''}
                                 </Typography>
                                 <Typography variant="body2" color="textSecondary" className="mb-4">
-                                    <strong>Especie:</strong> {case_.species || 'Unknown Species'}
+                                    <strong>{T.translate("shark_attack.species")}:</strong> {case_.species || 'Unknown Species'}
                                 </Typography>
                                 {case_.fatal_y_n && (
                                     <Typography variant="body2" color="textSecondary">
-                                        <strong>Fatal:</strong> {case_.fatal_y_n === 'Y' ? 'Sí' : case_.fatal_y_n === 'N' ? 'No' : 'Desconocido'}
+                                        <strong>{T.translate("shark_attack.fatal_y_n")}:</strong> {case_.fatal_y_n === 'Y' ? T.translate("shark_attack.modal_details.yes") : case_.fatal_y_n === 'N' ? "No" : T.translate("shark_attack.modal_details.unknown")}
                                     </Typography>
                                 )}
                             </div>
